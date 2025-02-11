@@ -1,0 +1,25 @@
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+jobs:
+  auto-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: チェックアウト
+        uses: actions/checkout@v4
+      - name: GitHub CLI 設定
+        run: gh auth login --with-token ${{ secrets.GITHUB_TOKEN }}
+      - name: 変更取得
+        run: |
+          git fetch upstream
+          git checkout -b auto-update
+          git merge upstream/main
+      - name: 変更をプッシュ
+        run: |
+          git add .
+          git commit -m 'Automated Cursor improvements'
+          git push origin auto-update
+      - name: プルリク作成
+        run: gh pr create --base main --head auto-update --title 'Automated PR for Cursor' --body '定期的な改善'
+
