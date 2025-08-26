@@ -1,0 +1,656 @@
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { Calendar, Users, CreditCard, Bell, Receipt } from "lucide-react"
+import { AuthGuard } from "@/components/auth-guard"
+
+export default function AdminPage() {
+  const [businesses, setBusinesses] = useState([
+    {
+      id: 1,
+      name: "SuperMart Lagos",
+      owner: "John Doe",
+      email: "john@supermart.ng",
+      phone: "+234 801 234 5678",
+      plan: "Premium",
+      status: "Active",
+      trialEnds: null,
+      monthlyRevenue: 2500000,
+      lastActive: "2024-01-15",
+    },
+    {
+      id: 2,
+      name: "Pharmacy Plus",
+      owner: "Sarah Johnson",
+      email: "sarah@pharmacyplus.ng",
+      phone: "+234 802 345 6789",
+      plan: "Basic",
+      status: "Trial",
+      trialEnds: "2024-01-25",
+      monthlyRevenue: 850000,
+      lastActive: "2024-01-14",
+    },
+  ])
+
+  const [receiptSettings, setReceiptSettings] = useState({
+    businessName: "BrainBox Store",
+    address: "123 Main Street, Lagos, Nigeria",
+    phone: "+234 801 234 5678",
+    email: "info@brainboxstore.ng",
+    logo: "",
+    currency: "₦",
+    taxRate: 7.5,
+    footerMessage: "Thank you for your business!",
+    format: "standard",
+  })
+
+  const [alertSettings, setAlertSettings] = useState({
+    highValueThreshold: 5000,
+    currency: "₦",
+    smsEnabled: true,
+    audioEnabled: true,
+    emailEnabled: false,
+    smsNumber: "+234 801 234 5678",
+    emailAddress: "alerts@brainboxstore.ng",
+  })
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Active":
+        return "bg-green-100 text-green-800"
+      case "Trial":
+        return "bg-blue-100 text-blue-800"
+      case "Expired":
+        return "bg-red-100 text-red-800"
+      case "Suspended":
+        return "bg-yellow-100 text-yellow-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  const getPlanColor = (plan: string) => {
+    switch (plan) {
+      case "Premium":
+        return "bg-purple-100 text-purple-800"
+      case "Basic":
+        return "bg-blue-100 text-blue-800"
+      case "Enterprise":
+        return "bg-orange-100 text-orange-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  return (
+    <AuthGuard adminOnly>
+      <div className="min-h-screen bg-gray-50">
+        <div className="border-b bg-white">
+          <div className="flex h-16 items-center px-6">
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-8 rounded bg-gradient-to-r from-cyan-500 to-pink-500"></div>
+              <h1 className="text-xl font-semibold">BrainBox Admin</h1>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <Tabs defaultValue="businesses" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="businesses" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Businesses
+              </TabsTrigger>
+              <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                Subscriptions
+              </TabsTrigger>
+              <TabsTrigger value="receipts" className="flex items-center gap-2">
+                <Receipt className="h-4 w-4" />
+                Receipts
+              </TabsTrigger>
+              <TabsTrigger value="alerts" className="flex items-center gap-2">
+                <Bell className="h-4 w-4" />
+                Alerts
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="businesses" className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Businesses</CardTitle>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{businesses.length}</div>
+                    <p className="text-xs text-muted-foreground">+2 from last month</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Active Subscriptions</CardTitle>
+                    <CreditCard className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{businesses.filter((b) => b.status === "Active").length}</div>
+                    <p className="text-xs text-muted-foreground">85% conversion rate</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Trial Users</CardTitle>
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{businesses.filter((b) => b.status === "Trial").length}</div>
+                    <p className="text-xs text-muted-foreground">3 expiring this week</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+                    <CreditCard className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      ₦{businesses.reduce((sum, b) => sum + b.monthlyRevenue, 0).toLocaleString()}
+                    </div>
+                    <p className="text-xs text-muted-foreground">+12% from last month</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Business Management</CardTitle>
+                  <CardDescription>Manage all registered businesses and their subscriptions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Business</TableHead>
+                        <TableHead>Owner</TableHead>
+                        <TableHead>Plan</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Trial Ends</TableHead>
+                        <TableHead>Revenue</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {businesses.map((business) => (
+                        <TableRow key={business.id}>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{business.name}</div>
+                              <div className="text-sm text-muted-foreground">{business.email}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{business.owner}</div>
+                              <div className="text-sm text-muted-foreground">{business.phone}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getPlanColor(business.plan)}>{business.plan}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getStatusColor(business.status)}>{business.status}</Badge>
+                          </TableCell>
+                          <TableCell>{business.trialEnds ? business.trialEnds : "N/A"}</TableCell>
+                          <TableCell>₦{business.monthlyRevenue.toLocaleString()}</TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button variant="outline" size="sm">
+                                Edit
+                              </Button>
+                              <Button variant="outline" size="sm">
+                                Suspend
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="subscriptions" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Subscription Plans</CardTitle>
+                  <CardDescription>Manage subscription plans and pricing</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid gap-6 md:grid-cols-3">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Basic Plan</CardTitle>
+                        <CardDescription>Perfect for small businesses</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-3xl font-bold">
+                          ₦15,000<span className="text-sm font-normal">/month</span>
+                        </div>
+                        <ul className="mt-4 space-y-2 text-sm">
+                          <li>• Up to 1,000 products</li>
+                          <li>• 2 user accounts</li>
+                          <li>• Basic reports</li>
+                          <li>• Email support</li>
+                        </ul>
+                        <Button className="mt-4 w-full bg-transparent" variant="outline">
+                          Edit Plan
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Premium Plan</CardTitle>
+                        <CardDescription>For growing businesses</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-3xl font-bold">
+                          ₦35,000<span className="text-sm font-normal">/month</span>
+                        </div>
+                        <ul className="mt-4 space-y-2 text-sm">
+                          <li>• Unlimited products</li>
+                          <li>• 10 user accounts</li>
+                          <li>• Advanced reports</li>
+                          <li>• Priority support</li>
+                          <li>• Custom receipts</li>
+                        </ul>
+                        <Button className="mt-4 w-full">Edit Plan</Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Enterprise Plan</CardTitle>
+                        <CardDescription>For large operations</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-3xl font-bold">
+                          ₦75,000<span className="text-sm font-normal">/month</span>
+                        </div>
+                        <ul className="mt-4 space-y-2 text-sm">
+                          <li>• Everything in Premium</li>
+                          <li>• Unlimited users</li>
+                          <li>• API access</li>
+                          <li>• Dedicated support</li>
+                          <li>• Custom integrations</li>
+                        </ul>
+                        <Button className="mt-4 w-full bg-transparent" variant="outline">
+                          Edit Plan
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Trial Settings</CardTitle>
+                      <CardDescription>Configure free trial parameters</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="trial-duration">Trial Duration (days)</Label>
+                          <Input id="trial-duration" type="number" defaultValue="14" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="trial-features">Trial Features</Label>
+                          <Select defaultValue="basic">
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="basic">Basic Plan Features</SelectItem>
+                              <SelectItem value="premium">Premium Plan Features</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <Button>Update Trial Settings</Button>
+                    </CardContent>
+                  </Card>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="receipts" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Receipt Customization</CardTitle>
+                  <CardDescription>Customize receipt templates and branding</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="business-name">Business Name</Label>
+                        <Input
+                          id="business-name"
+                          value={receiptSettings.businessName}
+                          onChange={(e) => setReceiptSettings({ ...receiptSettings, businessName: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="address">Address</Label>
+                        <Textarea
+                          id="address"
+                          value={receiptSettings.address}
+                          onChange={(e) => setReceiptSettings({ ...receiptSettings, address: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="phone">Phone</Label>
+                          <Input
+                            id="phone"
+                            value={receiptSettings.phone}
+                            onChange={(e) => setReceiptSettings({ ...receiptSettings, phone: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="email">Email</Label>
+                          <Input
+                            id="email"
+                            value={receiptSettings.email}
+                            onChange={(e) => setReceiptSettings({ ...receiptSettings, email: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="currency">Currency</Label>
+                          <Select
+                            value={receiptSettings.currency}
+                            onValueChange={(value) => setReceiptSettings({ ...receiptSettings, currency: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="₦">₦ (Naira)</SelectItem>
+                              <SelectItem value="$">$ (Dollar)</SelectItem>
+                              <SelectItem value="€">€ (Euro)</SelectItem>
+                              <SelectItem value="£">£ (Pound)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="tax-rate">Tax Rate (%)</Label>
+                          <Input
+                            id="tax-rate"
+                            type="number"
+                            step="0.1"
+                            value={receiptSettings.taxRate}
+                            onChange={(e) =>
+                              setReceiptSettings({ ...receiptSettings, taxRate: Number.parseFloat(e.target.value) })
+                            }
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="footer-message">Footer Message</Label>
+                        <Textarea
+                          id="footer-message"
+                          value={receiptSettings.footerMessage}
+                          onChange={(e) => setReceiptSettings({ ...receiptSettings, footerMessage: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="format">Receipt Format</Label>
+                        <Select
+                          value={receiptSettings.format}
+                          onValueChange={(value) => setReceiptSettings({ ...receiptSettings, format: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="standard">Standard (Full Details)</SelectItem>
+                            <SelectItem value="compact">Compact (Short Format)</SelectItem>
+                            <SelectItem value="minimal">Minimal (Basic Info)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Receipt Preview</Label>
+                        <div className="border rounded-lg p-4 bg-white font-mono text-sm">
+                          <div className="text-center border-b pb-2 mb-2">
+                            <div className="font-bold">{receiptSettings.businessName}</div>
+                            <div className="text-xs">{receiptSettings.address}</div>
+                            <div className="text-xs">
+                              {receiptSettings.phone} | {receiptSettings.email}
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex justify-between">
+                              <span>Date:</span>
+                              <span>{new Date().toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Receipt #:</span>
+                              <span>RCP-001</span>
+                            </div>
+                          </div>
+                          <div className="border-t border-b py-2 my-2">
+                            <div className="flex justify-between">
+                              <span>Sample Item</span>
+                              <span>{receiptSettings.currency}1,500</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Another Item x2</span>
+                              <span>{receiptSettings.currency}3,000</span>
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex justify-between">
+                              <span>Subtotal:</span>
+                              <span>{receiptSettings.currency}4,500</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Tax ({receiptSettings.taxRate}%):</span>
+                              <span>
+                                {receiptSettings.currency}
+                                {((4500 * receiptSettings.taxRate) / 100).toFixed(2)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between font-bold">
+                              <span>Total:</span>
+                              <span>
+                                {receiptSettings.currency}
+                                {(4500 * (1 + receiptSettings.taxRate / 100)).toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-center text-xs mt-2 pt-2 border-t">{receiptSettings.footerMessage}</div>
+                        </div>
+                      </div>
+                      <Button className="w-full">Save Receipt Settings</Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="alerts" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Alert Configuration</CardTitle>
+                  <CardDescription>Configure high-value sale alerts and notifications</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="threshold">High Value Threshold</Label>
+                        <div className="flex space-x-2">
+                          <Select
+                            value={alertSettings.currency}
+                            onValueChange={(value) => setAlertSettings({ ...alertSettings, currency: value })}
+                          >
+                            <SelectTrigger className="w-20">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="₦">₦</SelectItem>
+                              <SelectItem value="$">$</SelectItem>
+                              <SelectItem value="€">€</SelectItem>
+                              <SelectItem value="£">£</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            id="threshold"
+                            type="number"
+                            value={alertSettings.highValueThreshold}
+                            onChange={(e) =>
+                              setAlertSettings({
+                                ...alertSettings,
+                                highValueThreshold: Number.parseInt(e.target.value),
+                              })
+                            }
+                            className="flex-1"
+                          />
+                        </div>
+                        <p className="text-sm text-muted-foreground">Sales above this amount will trigger alerts</p>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>SMS Alerts</Label>
+                            <p className="text-sm text-muted-foreground">Send SMS for high-value sales</p>
+                          </div>
+                          <Button
+                            variant={alertSettings.smsEnabled ? "default" : "outline"}
+                            size="sm"
+                            onClick={() =>
+                              setAlertSettings({ ...alertSettings, smsEnabled: !alertSettings.smsEnabled })
+                            }
+                          >
+                            {alertSettings.smsEnabled ? "Enabled" : "Disabled"}
+                          </Button>
+                        </div>
+                        {alertSettings.smsEnabled && (
+                          <div className="space-y-2">
+                            <Label htmlFor="sms-number">SMS Number</Label>
+                            <Input
+                              id="sms-number"
+                              value={alertSettings.smsNumber}
+                              onChange={(e) => setAlertSettings({ ...alertSettings, smsNumber: e.target.value })}
+                            />
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>Audio Alerts</Label>
+                            <p className="text-sm text-muted-foreground">Play sound for high-value sales</p>
+                          </div>
+                          <Button
+                            variant={alertSettings.audioEnabled ? "default" : "outline"}
+                            size="sm"
+                            onClick={() =>
+                              setAlertSettings({ ...alertSettings, audioEnabled: !alertSettings.audioEnabled })
+                            }
+                          >
+                            {alertSettings.audioEnabled ? "Enabled" : "Disabled"}
+                          </Button>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>Email Alerts</Label>
+                            <p className="text-sm text-muted-foreground">Send email notifications</p>
+                          </div>
+                          <Button
+                            variant={alertSettings.emailEnabled ? "default" : "outline"}
+                            size="sm"
+                            onClick={() =>
+                              setAlertSettings({ ...alertSettings, emailEnabled: !alertSettings.emailEnabled })
+                            }
+                          >
+                            {alertSettings.emailEnabled ? "Enabled" : "Disabled"}
+                          </Button>
+                        </div>
+                        {alertSettings.emailEnabled && (
+                          <div className="space-y-2">
+                            <Label htmlFor="email-address">Email Address</Label>
+                            <Input
+                              id="email-address"
+                              type="email"
+                              value={alertSettings.emailAddress}
+                              onChange={(e) => setAlertSettings({ ...alertSettings, emailAddress: e.target.value })}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Alert Preview</Label>
+                        <div className="border rounded-lg p-4 bg-yellow-50 border-yellow-200">
+                          <div className="flex items-center space-x-2 text-yellow-800">
+                            <Bell className="h-5 w-5" />
+                            <span className="font-medium">High Value Sale Alert!</span>
+                          </div>
+                          <div className="mt-2 text-sm text-yellow-700">
+                            <p>
+                              Sale Amount: {alertSettings.currency}
+                              {alertSettings.highValueThreshold.toLocaleString()}
+                            </p>
+                            <p>Time: {new Date().toLocaleTimeString()}</p>
+                            <p>Cashier: John Doe</p>
+                            <p>Customer: Walk-in Customer</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Test Alerts</Label>
+                        <div className="space-y-2">
+                          <Button variant="outline" className="w-full bg-transparent">
+                            Test SMS Alert
+                          </Button>
+                          <Button variant="outline" className="w-full bg-transparent">
+                            Test Audio Alert
+                          </Button>
+                          <Button variant="outline" className="w-full bg-transparent">
+                            Test Email Alert
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button className="w-full">Save Alert Settings</Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </AuthGuard>
+  )
+}
