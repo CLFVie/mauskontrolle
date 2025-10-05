@@ -58,13 +58,13 @@ class RulesOverlay(QtWidgets.QWidget):
                 <li><b>No greed</b>: never 10–15 deep early.</li>
               </ul>
               <div style='margin-top:10px; font-size:12px; color:#9AA0A6;'>
-                Toggle overlay: <b>STRG+S</b> (Ctrl+S)
+                Toggle overlay: <b>1</b>
               </div>
             </div>
             """
         )
 
-        footer = QtWidgets.QLabel("Press STRG+S to show/hide. Press Ctrl+C in terminal to quit.")
+        footer = QtWidgets.QLabel("Press 1 to show/hide. Press Ctrl+C in terminal to quit.")
         footer.setStyleSheet("font-size: 11px; color: #9AA0A6;")
 
         panel_layout.addWidget(title)
@@ -127,7 +127,7 @@ class HotkeyBridge(QtCore.QObject):
 class KeyboardToggleListener:
     """Global hotkey listener using pynput.
 
-    Listens for Ctrl+S (STRG+S) and calls a callback. Debounced to avoid repeats.
+    Listens for the '1' key and calls a callback. Debounced to avoid repeats.
     """
 
     def __init__(self, on_toggle: Callable[[], None]) -> None:
@@ -155,7 +155,7 @@ class KeyboardToggleListener:
     def _on_press(self, key: object) -> None:
         with self._lock:
             self._pressed.add(key)
-            if self._is_ctrl_s_combo():
+            if self._is_one_key():
                 now = time.monotonic()
                 if now - self._last_toggle_monotonic >= self._debounce_seconds:
                     self._last_toggle_monotonic = now
@@ -165,15 +165,13 @@ class KeyboardToggleListener:
         with self._lock:
             self._pressed.discard(key)
 
-    def _is_ctrl_s_combo(self) -> bool:
+    def _is_one_key(self) -> bool:
         if keyboard is None:
             return False
-        ctrl_down = any(k in self._pressed for k in (keyboard.Key.ctrl, keyboard.Key.ctrl_l, keyboard.Key.ctrl_r))
-        s_down = any(
-            isinstance(k, keyboard.KeyCode) and k.char is not None and k.char.lower() == "s"
+        return any(
+            isinstance(k, keyboard.KeyCode) and k.char == "1"
             for k in self._pressed
         )
-        return ctrl_down and s_down
 
 
 def _warn_if_wayland() -> None:
