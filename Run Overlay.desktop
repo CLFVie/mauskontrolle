@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Arena Rules Overlay
+Comment=Toggleable rules overlay (press 1 to show/hide)
+Exec=/workspace/run_overlay.sh
+Icon=utilities-terminal
+Terminal=true
+Categories=Utility;
